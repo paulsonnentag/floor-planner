@@ -7,7 +7,7 @@ import {createModel} from './floorplan';
 
 
 var scene, camera, renderer, controls;
-var currSelected;
+var currSelected, mouseActive;
 var lastColor;
 var mouse = {x:0, y:0};
 
@@ -63,35 +63,40 @@ function onMouseMove(event) {
 }
 
 function onMouseDown(event) {
-  hanldeIntersects();
+  handleClick();
 }
 
 function moveSelected() {
   var raycaster = getRayCaster();
   var vec = raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 0, 1)));
 
-  if(currSelected && vec) {
+  if(currSelected && vec && mouseActive) {
     currSelected.position.copy(vec);
   }
 }
 
 function deactivateDD() {
   controls.enabled = true;
+  mouseActive = false;
+}
+
+function handleClick() {
+  mouseActive = true;
+  var raycaster = getRayCaster();
+  var intersects = raycaster.intersectObjects( scene.children );
+
   if(currSelected){
     currSelected.material.color.setHex(lastColor);
     currSelected = null;
   }
-}
-
-function hanldeIntersects() {
-  var raycaster = getRayCaster();
-  var intersects = raycaster.intersectObjects( scene.children );
 
   if(intersects.length > 0) {
     controls.enabled = false;
     currSelected = intersects[0].object;
     lastColor = intersects[0].object.material.color.getHex();
     currSelected.material.color.setHex(0xffffff);
+  } else {
+    //add new point
   }
 }
 
