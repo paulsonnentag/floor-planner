@@ -43,7 +43,7 @@ export function init () {
   var floorplanModel = createModel(floorplan);
 
   _.each(floorplanModel.points, (box) => scene.add(box));
-  scene.add(floorplanModel.lines);
+  _.each(floorplanModel.lines, (line) => scene.add(line));
 
   document.body.appendChild(renderer.domElement);
 

@@ -5,29 +5,26 @@ import THREE from 'three';
 
 export function createModel (floorplan) {
   var completedFloorplan = completeFloorplan(floorplan);
-  var material = new THREE.LineBasicMaterial({
-    color: 0xff0000
-  });
-
-  var geometry = new THREE.Geometry();
-  geometry.vertices = getVertices(completedFloorplan);
-
-  var lines = new THREE.Line(geometry, material);
-
+  var lines = getLineModels(completedFloorplan);
   var points = getPointModel(completedFloorplan.points);
-  
+
   return {lines, points};
 }
 
-function getVertices ({lines, points}) {
-  return _(lines)
-    .map(({from, to}) => [
-      points[from],
-      points[to]
-    ])
-    .flatten()
-    .map(({x, y}) => new THREE.Vector3(x, y, 0))
-    .value();
+function getLineModels ({lines, points}) {
+  return _.map(lines, ({from, to}) => {
+    var material = new THREE.LineBasicMaterial({
+      color: 0xff00ff
+    });
+
+    var geometry = new THREE.Geometry();
+    geometry.vertices = [
+      new THREE.Vector3(points[from].x, points[from].y, 0),
+      new THREE.Vector3(points[to].x, points[to].y, 0)
+    ];
+
+    return new THREE.Line(geometry, material);
+  });
 }
 
 function getPointModel (points) {
@@ -58,17 +55,13 @@ function completeFloorplan (floorplan) {
     let pointId = points.length;
 
     let newPoint = (Math.abs(fromPoint.x - toPoint.x) > Math.abs(fromPoint.y - toPoint.y)) ?
-    {
-      id: pointId,
+    { id: pointId,
       x: nearestPoint.x,
-      y: endPoint.y
-    }
+      y: endPoint.y }
       :
-    {
-      id: pointId,
+    { id: pointId,
       x: endPoint.x,
-      y: nearestPoint.y
-    };
+      y: nearestPoint.y };
 
     floorplan.lines.push({from: nearestPoint.id, to: pointId});
     floorplan.lines.push({from: endPoint.id, to: pointId});
