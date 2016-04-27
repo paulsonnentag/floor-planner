@@ -22,7 +22,7 @@ export function createModel (floorplan) {
   var points = getPointModel(floorplan.points);
 
   _.each(points, (box) => model.add(box));
-
+  
   return model;
 }
 

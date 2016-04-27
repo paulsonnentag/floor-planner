@@ -1,9 +1,28 @@
 'use strict';
 
 import THREE from 'three';
+import OrbitControls from 'three-orbit-controls';
 import {createModel} from './floorplan';
 
-var scene, camera, renderer;
+
+
+var scene, camera, renderer, controls;
+
+// add floorplan
+var floorplan = {
+  points: [
+    {x: 0, y: 0},
+    {x: 0, y: 400},
+    {x: 500, y: 0},
+    {x: 500, y: 200}
+  ],
+
+  lines: [
+    {from: 0, to: 1},
+    {from: 0, to: 2},
+    {from: 2, to: 3}
+  ]
+};
 
 export function init () {
 
@@ -15,22 +34,8 @@ export function init () {
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
 
+  controls = new (OrbitControls(THREE))(camera);
 
-  // add floorplan
-  var floorplan = {
-    points: [
-      {x: 0, y: 0},
-      {x: 0, y: 400},
-      {x: 500, y: 0},
-      {x: 500, y: 200}
-    ],
-
-    lines: [
-      {from: 0, to: 1},
-      {from: 0, to: 2},
-      {from: 2, to: 3}
-    ]
-  };
 
   var floorplanModel = createModel(floorplan);
   scene.add(floorplanModel);
