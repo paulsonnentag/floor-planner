@@ -15,10 +15,10 @@ var mouse = {x:0, y:0};
 // add floorplan
 var floorplan = {
   points: [
-    {x: 0, y: 0},
-    {x: 0, y: 400},
-    {x: 500, y: 0},
-    {x: 500, y: 200}
+    {x: 0, y: 0, id: 0},
+    {x: 0, y: 400, id: 1},
+    {x: 500, y: 0, id: 2},
+    {x: 500, y: 200, id: 3}
   ],
 
   lines: [
