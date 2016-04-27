@@ -3,26 +3,25 @@
 import _ from 'lodash';
 import THREE from 'three';
 
-// sample data
-
-
 export function createModel (floorplan) {
+  var completedFloorplan = completeFloorplan(floorplan);
+
   var model = new THREE.Group();
   var material = new THREE.LineBasicMaterial({
     color: 0xff0000
   });
 
   var geometry = new THREE.Geometry();
-  geometry.vertices = getVertices(floorplan);
+  geometry.vertices = getVertices(completedFloorplan);
 
   var lines = new THREE.Line(geometry, material);
 
   model.add(lines);
 
-  var points = getPointModel(floorplan.points);
+  var points = getPointModel(completedFloorplan.points);
 
   _.each(points, (box) => model.add(box));
-  
+
   return model;
 }
 
@@ -50,11 +49,36 @@ function getPointModel(points) {
   });
 }
 
+function completeFloorplan (floorplan) {
+  var endPoint;
+  var {points, lines} = floorplan;
+  var endPoints = _.filter(points, (point, id) => getConnectedLines(lines, id).length === 1);
 
-function getLines () {
+  while (endPoint = endPoints.pop()) {
+    let nearestPoint = getNearestPoint(endPoint, endPoints);
 
+    floorplan.lines.push({
+      from: endPoint.id,
+      to: nearestPoint.id
+    });
+
+    endPoints = _.reject(endPoints, ({id}) => id == nearestPoint.id);
+  }
+
+  return floorplan;
 }
 
-function completeFloorplan (floorplan) {
+function getConnectedLines (lines, id) {
+  return _.filter(lines, ({from, to}) => (from === id || to === id));
+}
 
+function getNearestPoint (point, points) {
+  return _.reduce(points,
+    ({min, nearestPoint}, comparePoint) => {
+      var distance = Math.pow(point.x - comparePoint.x, 2) + Math.pow(point.y - comparePoint.y, 2);
+      return distance < min ? {min: distance, nearestPoint: comparePoint} : {min, nearestPoint}
+    },
+    { min: Infinity,
+      nearestPoint: null }
+  ).nearestPoint;
 }
