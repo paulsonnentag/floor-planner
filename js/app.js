@@ -7,6 +7,10 @@ import {createModel} from './floorplan';
 
 
 var scene, camera, renderer, controls;
+var currSelected;
+var lastColor;
+var mouse = {x:0, y:0};
+
 
 // add floorplan
 var floorplan = {
@@ -36,13 +40,71 @@ export function init () {
 
   controls = new (OrbitControls(THREE))(camera);
 
-
   var floorplanModel = createModel(floorplan);
-  scene.add(floorplanModel);
+
+  _.each(floorplanModel.points, (box) => scene.add(box));
+  scene.add(floorplanModel.lines);
 
   document.body.appendChild(renderer.domElement);
 
+  document.addEventListener("mousedown", onMouseDown);
+  document.addEventListener("mouseup", onMouseUp);
+  document.addEventListener("mousemove", onMouseMove);
+
   animate();
+}
+
+function onMouseUp(event) {
+  deactivateDD();
+}
+
+function onMouseMove(event) {
+  moveSelected();
+}
+
+function onMouseDown(event) {
+  hanldeIntersects();
+}
+
+function moveSelected() {
+  var raycaster = getRayCaster();
+  var vec = raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 0, 1)));
+
+  if(currSelected && vec) {
+    currSelected.position.copy(vec);
+  }
+}
+
+function deactivateDD() {
+  controls.enabled = true;
+  if(currSelected){
+    currSelected.material.color.setHex(lastColor);
+    currSelected = null;
+  }
+}
+
+function hanldeIntersects() {
+  var raycaster = getRayCaster();
+  var intersects = raycaster.intersectObjects( scene.children );
+
+  if(intersects.length > 0) {
+    controls.enabled = false;
+    currSelected = intersects[0].object;
+    lastColor = intersects[0].object.material.color.getHex();
+    currSelected.material.color.setHex(0xffffff);
+  }
+}
+
+function getRayCaster() {
+  // normalized device coordinates
+  mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+  var raycaster = new THREE.Raycaster();
+  var vector = new THREE.Vector3( mouse.x, mouse.y, 1 ).unproject( camera );
+  raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
+
+  return raycaster;
 }
 
 function animate () {

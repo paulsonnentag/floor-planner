@@ -7,7 +7,6 @@ import THREE from 'three';
 
 
 export function createModel (floorplan) {
-  var model = new THREE.Group();
   var material = new THREE.LineBasicMaterial({
     color: 0xff0000
   });
@@ -17,13 +16,9 @@ export function createModel (floorplan) {
 
   var lines = new THREE.Line(geometry, material);
 
-  model.add(lines);
-
   var points = getPointModel(floorplan.points);
-
-  _.each(points, (box) => model.add(box));
   
-  return model;
+  return {lines, points};
 }
 
 function getVertices ({lines, points}) {
