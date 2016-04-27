@@ -38,13 +38,14 @@ function getVertices ({lines, points}) {
 }
 
 function getPointModel(points) {
-
-  return _.map(points, ({x, y}) => {
+  return _.map(points, ({x, y}, id) => {
     var geometry = new THREE.BoxGeometry(20, 20, 20);
     var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
     var mesh = new THREE.Mesh( geometry, material );
     mesh.position.x = x;
     mesh.position.y = y;
+    mesh.data = {id};
+
     return mesh;
   });
 }
