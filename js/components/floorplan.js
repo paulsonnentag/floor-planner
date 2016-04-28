@@ -61,9 +61,11 @@ export default class FloorPlan extends React.Component {
     ));
 
     if (selectedPoint) {
+      let restricted = snapToAxis(selectedPoint, mousePosition);
+
       let vertices = [
         new THREE.Vector3(selectedPoint.x,  0, selectedPoint.z),
-        new THREE.Vector3(mousePosition.x,  0, mousePosition.z)
+        new THREE.Vector3(restricted.x,  0, restricted.z)
       ];
 
       selectionLine = (
@@ -95,6 +97,15 @@ function getPointId (name) {
   return match && parseInt(match[1], 10);
 }
 
+function snapToAxis (refVec, vec) {
+  const diffX = Math.abs(refVec.x - vec.x);
+  const diffZ = Math.abs(refVec.z - vec.z);
+
+  return  (diffX > diffZ) ?
+    {x: vec.x, z: 0}
+    :
+    {x: 0, z: vec.z};
+}
 
 function getRaycaster (camera, x, y) {
   // normalized device coordinates
