@@ -14,17 +14,26 @@ export default class FloorPlan extends React.Component {
     super(props, context);
 
     this.state = {
-      selectedPointId: null
-    }
+      selectedPointId: 0,
+      mousePosition: new THREE.Vector3(0, 0, 0)
+    };
   }
 
   componentDidMount () {
     document.addEventListener('click', (evt) => this.selectPoint(evt.clientX, evt.clientY));
+    document.addEventListener('mousemove', (evt) => this.updateMousePosition(evt.clientX, evt.clientY))
+  }
+
+  updateMousePosition (x, y) {
+    let raycaster = getRaycaster(this.props.getCamera(), x, y)
+    var mousePosition = raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0)));
+
+    this.setState({mousePosition});
   }
 
   selectPoint (x, y) {
     let raycaster = getRaycaster(this.props.getCamera(), x, y);
-    let intersects = raycaster.intersectObjects(this._group.children);
+    let intersects = raycaster.intersectObjects(this._pointGroup.children);
 
     this.setState({
       selectedPointId: intersects.length > 0 ? getPointId(intersects[0].object.name) : null
@@ -33,11 +42,14 @@ export default class FloorPlan extends React.Component {
 
   render () {
     const {points, lines, camera} = this.props;
-    const {selectedPointId} = this.state;
+    const {selectedPointId, mousePosition} = this.state;
+    const selectedPoint = points[selectedPointId];
 
-    const corners = _.map(points, ({x, y}, id) => (
+    let selectionLine;
+
+    const corners = _.map(points, ({x, z}, id) => (
       <mesh key={id}
-            position={new THREE.Vector3(x, 0, y)}
+            position={new THREE.Vector3(x, 0, z)}
             name={`point_${id}`}>
         <boxGeometry
           width={20}
@@ -48,12 +60,34 @@ export default class FloorPlan extends React.Component {
       </mesh>
     ));
 
+    if (selectedPoint) {
+      let vertices = [
+        new THREE.Vector3(selectedPoint.x,  0, selectedPoint.z),
+        new THREE.Vector3(mousePosition.x,  0, mousePosition.z)
+      ];
+
+      selectionLine = (
+        <line>
+          <geometry
+            vertices={vertices}>
+          </geometry>
+          <lineBasicMaterial
+            color={0x00ff00}/>
+        </line>
+      );
+    }
+
     return (
-      <group ref={(group) => this._group = group}>
-        {corners}
+      <group>
+        {selectionLine}
+        <group ref={(group) => this._pointGroup = group}>
+          {corners}
+        </group>
       </group>
-    )
+    );
+
   }
+
 }
 
 function getPointId (name) {
@@ -62,14 +96,14 @@ function getPointId (name) {
 }
 
 
-function getRaycaster(camera, x, y) {
+function getRaycaster (camera, x, y) {
   // normalized device coordinates
   var normX = (x / window.innerWidth) * 2 - 1;
-  var normY = - (y / window.innerHeight) * 2 + 1;
+  var normY = -(y / window.innerHeight) * 2 + 1;
 
   var raycaster = new THREE.Raycaster();
-  var vector = new THREE.Vector3( normX, normY , 1).unproject( camera );
-  raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
+  var vector = new THREE.Vector3(normX, normY, 1).unproject(camera);
+  raycaster.set(camera.position, vector.sub(camera.position).normalize());
 
   return raycaster;
 }
@@ -86,7 +120,7 @@ function getProps ({points, lines}) {
 
 function getDispatch (dispatch) {
   return {
-     addPoint (x, y) {
+    addPoint (x, y) {
       dispatch(ACTIONS.addSinglePoint(x, y));
     }
   }

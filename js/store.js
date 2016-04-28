@@ -4,10 +4,10 @@ import {completeFloorplan} from './floorplan';
 
 const initalState = {
   points: [
-    {x: 0, y: 0, id: 0},
-    {x: 0, y: 400, id: 1},
-    {x: 500, y: 0, id: 2},
-    {x: 500, y: 200, id: 3}
+    {x: 0, z: 0, id: 0},
+    {x: 0, z: 400, id: 1},
+    {x: 500, z: 0, id: 2},
+    {x: 500, z: 200, id: 3}
   ],
 
   lines: [
