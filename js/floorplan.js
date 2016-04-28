@@ -19,8 +19,8 @@ function getLineModels ({lines, points}) {
 
     var geometry = new THREE.Geometry();
     geometry.vertices = [
-      new THREE.Vector3(points[from].x, points[from].y, 0),
-      new THREE.Vector3(points[to].x, points[to].y, 0)
+      new THREE.Vector3(points[from].x, 0, points[from].z),
+      new THREE.Vector3(points[to].x, 0, points[to].z)
     ];
 
     return new THREE.Line(geometry, material);
@@ -28,12 +28,14 @@ function getLineModels ({lines, points}) {
 }
 
 function getPointModel (points) {
-  return _.map(points, ({x, y}, id) => {
+  return _.map(points, ({x, z}, id) => {
     var geometry = new THREE.BoxGeometry(20, 20, 20);
-    var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+    var material = new THREE.MeshPhongMaterial({color: 0x00ff00});
     var mesh = new THREE.Mesh(geometry, material);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
     mesh.position.x = x;
-    mesh.position.y = y;
+    mesh.position.z = z;
     mesh.data = {id};
 
     return mesh;
@@ -54,14 +56,14 @@ function completeFloorplan (floorplan) {
     let toPoint = points[to];
     let pointId = points.length;
 
-    let newPoint = (Math.abs(fromPoint.x - toPoint.x) > Math.abs(fromPoint.y - toPoint.y)) ?
+    let newPoint = (Math.abs(fromPoint.x - toPoint.x) > Math.abs(fromPoint.z - toPoint.z)) ?
     { id: pointId,
       x: nearestPoint.x,
-      y: endPoint.y }
+      z: endPoint.z }
       :
     { id: pointId,
       x: endPoint.x,
-      y: nearestPoint.y };
+      z: nearestPoint.z };
 
     floorplan.lines.push({from: nearestPoint.id, to: pointId});
     floorplan.lines.push({from: endPoint.id, to: pointId});
@@ -80,7 +82,7 @@ function getConnectedLines (lines, id) {
 function getNearestPoint (point, points) {
   return _.reduce(points,
     ({min, nearestPoint}, comparePoint) => {
-      var distance = Math.pow(point.x - comparePoint.x, 2) + Math.pow(point.y - comparePoint.y, 2);
+      var distance = Math.pow(point.x - comparePoint.x, 2) + Math.pow(point.z - comparePoint.z, 2);
       return distance < min ? {min: distance, nearestPoint: comparePoint} : {min, nearestPoint}
     },
     {
