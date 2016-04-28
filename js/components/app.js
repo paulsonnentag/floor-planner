@@ -13,15 +13,28 @@ export default class App extends React.Component {
     super(props, context);
 
     this.cameraPosition = new THREE.Vector3(500, 500, 500);
+
+    this.state = {
+      width: window.innerWidth,
+      height: window.innerHeight
+    };
+  }
+
+  updateSize () {
+    this.setState({
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
   }
 
   componentDidMount () {
     var controls = new (OrbitControls(THREE))(this._camera);
+
+    window.addEventListener('resize', () => this.updateSize());
   }
 
   render () {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    const {width, height} = this.state;
 
     return (
       <React3
