@@ -1,7 +1,8 @@
 import React from 'react';
 import React3 from 'react-three-renderer';
 import THREE from 'three';
-import { Provider } from 'react-redux'
+import OrbitControls from 'three-orbit-controls';
+import { Provider } from 'react-redux';
 
 import store from '../store';
 import FloorPlan from './floorplan';
@@ -11,7 +12,11 @@ export default class App extends React.Component {
   constructor (props, context) {
     super(props, context);
 
-    this.cameraPosition = new THREE.Vector3(0, 0, 1000);
+    this.cameraPosition = new THREE.Vector3(500, 500, 500);
+  }
+
+  componentDidMount () {
+    var controls = new (OrbitControls(THREE))(this._camera);
   }
 
   render () {
@@ -25,6 +30,7 @@ export default class App extends React.Component {
         height={height}>
       <scene>
         <perspectiveCamera
+          ref={(camera) => {this._camera = camera}}
           name="camera"
           fov={75}
           aspect={width / height}
@@ -32,7 +38,7 @@ export default class App extends React.Component {
           far={1000}
           position={this.cameraPosition}/>
         <Provider store={store}>
-          <FloorPlan/>
+          <FloorPlan getCamera={() => this._camera}/>
         </Provider>
       </scene>
     </React3>);

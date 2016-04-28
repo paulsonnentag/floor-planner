@@ -44,11 +44,11 @@ function addPoint ({lines, points}, {pos, pointId}) {
 
 export const ACTIONS = {
   addPoint (pointId, pos) {
-    return {
-      type: 'ADD_POINT',
-      pos: pos,
-      pointId: pointId
-    }
+    return { type: 'ADD_POINT', pos, pointId: pointId}
+  },
+
+  addSinglePoint (pos) {
+    return {type: 'ADD_SINGLE_POINT', pos}
   }
 };
 

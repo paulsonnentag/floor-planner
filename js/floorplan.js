@@ -1,46 +1,8 @@
 'use strict';
 
 import _ from 'lodash';
-import THREE from 'three';
 
-export function createModel (floorplan) {
-  var completedFloorplan = completeFloorplan(floorplan);
-  var lines = getLineModels(completedFloorplan);
-  var points = getPointModel(completedFloorplan.points);
-
-  return {lines, points};
-}
-
-function getLineModels ({lines, points}) {
-  return _.map(lines, ({from, to}) => {
-    var material = new THREE.LineBasicMaterial({
-      color: 0xff00ff
-    });
-
-    var geometry = new THREE.Geometry();
-    geometry.vertices = [
-      new THREE.Vector3(points[from].x, points[from].y, 0),
-      new THREE.Vector3(points[to].x, points[to].y, 0)
-    ];
-
-    return new THREE.Line(geometry, material);
-  });
-}
-
-function getPointModel (points) {
-  return _.map(points, ({x, y}, id) => {
-    var geometry = new THREE.BoxGeometry(20, 20, 20);
-    var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-    var mesh = new THREE.Mesh(geometry, material);
-    mesh.position.x = x;
-    mesh.position.y = y;
-    mesh.data = {id};
-
-    return mesh;
-  });
-}
-
-function completeFloorplan (floorplan) {
+export function completeFloorplan (floorplan) {
   var endPoint;
   var {points, lines} = floorplan;
   var pointsWithLines = _.map(points, (point) => _.assign({}, point, {lines: getConnectedLines(lines, point.id)}));
