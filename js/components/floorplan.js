@@ -14,7 +14,7 @@ export default class FloorPlan extends React.Component {
     super(props, context);
 
     this.state = {
-      selectedPointId: 0,
+      selectedPointId: null,
       mousePosition: new THREE.Vector3(0, 0, 0)
     };
   }
@@ -25,7 +25,7 @@ export default class FloorPlan extends React.Component {
   }
 
   updateMousePosition (x, y) {
-    let raycaster = getRaycaster(this.props.getCamera(), x, y)
+    let raycaster = getRaycaster(this.props.getCamera(), x, y);
     var mousePosition = raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0)));
 
     this.setState({mousePosition});
@@ -43,7 +43,7 @@ export default class FloorPlan extends React.Component {
   render () {
     const {points, lines, camera} = this.props;
     const {selectedPointId, mousePosition} = this.state;
-    const selectedPoint = points[selectedPointId];
+    let selectedPoint = points[selectedPointId];
 
     let selectionLine;
 
@@ -60,12 +60,12 @@ export default class FloorPlan extends React.Component {
       </mesh>
     ));
 
-    if (selectedPoint) {
+    if (selectedPoint && mousePosition) {
       let restricted = snapToAxis(selectedPoint, mousePosition);
 
       let vertices = [
         new THREE.Vector3(selectedPoint.x,  0, selectedPoint.z),
-        new THREE.Vector3(restricted.x,  0, restricted.z)
+        new THREE.Vector3(selectedPoint.x - restricted.x,  0, selectedPoint.z - restricted.z)
       ];
 
       selectionLine = (
@@ -98,13 +98,13 @@ function getPointId (name) {
 }
 
 function snapToAxis (refVec, vec) {
-  const diffX = Math.abs(refVec.x - vec.x);
-  const diffZ = Math.abs(refVec.z - vec.z);
+  const diffX = refVec.x - vec.x;
+  const diffZ = refVec.z - vec.z;
 
-  return  (diffX > diffZ) ?
-    {x: vec.x, z: 0}
+  return  (Math.abs(diffX) > Math.abs(diffZ)) ?
+    {x: diffX, y: 0, z: 0}
     :
-    {x: 0, z: vec.z};
+    {x: 0, y: 0, z: diffZ};
 }
 
 function getRaycaster (camera, x, y) {
