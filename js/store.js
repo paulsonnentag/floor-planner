@@ -37,18 +37,14 @@ const store = createStore((state = initalState, action) => {
 function addPoint ({lines, points}, {pos, pointId}) {
   var newId = points.length;
   return {
-    points: update(points, {$push: {x: pos.x, y: pos.y, id: pointId}}),
-    lines: update(lines, {$push: {from: pointId, to: newId}})
+    points: update(points, {$push: [{x: pos.x, z: pos.z, id: pointId}]}),
+    lines: update(lines, {$push: [{from: pointId, to: newId}]})
   };
 }
 
 export const ACTIONS = {
   addPoint (pointId, pos) {
     return { type: 'ADD_POINT', pos, pointId: pointId}
-  },
-
-  addSinglePoint (pos) {
-    return {type: 'ADD_SINGLE_POINT', pos}
   }
 };
 

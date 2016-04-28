@@ -20,8 +20,19 @@ export default class FloorPlan extends React.Component {
   }
 
   componentDidMount () {
-    document.addEventListener('click', (evt) => this.selectPoint(evt.clientX, evt.clientY));
+    document.addEventListener('click', (evt) => this.handleClick(evt.clientX, evt.clientY));
     document.addEventListener('mousemove', (evt) => this.updateMousePosition(evt.clientX, evt.clientY))
+  }
+
+  handleClick (x, y) {
+    const {mousePosition, selectedPointId} = this.state;
+
+    if (selectedPointId === null) {
+      this.selectPoint(x, y);
+
+    } else {
+      this.addPoint();
+    }
   }
 
   updateMousePosition (x, y) {
@@ -40,10 +51,23 @@ export default class FloorPlan extends React.Component {
     });
   }
 
+  addPoint () {
+    const {points} = this.props;
+    const {mousePosition, selectedPointId} = this.state;
+    const selectedPoint = points[selectedPointId];
+    const restricted = snapToAxis(selectedPoint, mousePosition);
+
+    this.props.addPoint(selectedPointId, {
+      x: selectedPoint.x + restricted.x,
+      z: selectedPoint.z + restricted.z
+    });
+    this.setState({selectedPointId: null});
+  }
+
   render () {
     const {points, lines, camera} = this.props;
     const {selectedPointId, mousePosition} = this.state;
-    let selectedPoint = points[selectedPointId];
+    const selectedPoint = points[selectedPointId];
 
     let selectionLine;
 
@@ -65,7 +89,7 @@ export default class FloorPlan extends React.Component {
 
       let vertices = [
         new THREE.Vector3(selectedPoint.x,  0, selectedPoint.z),
-        new THREE.Vector3(selectedPoint.x - restricted.x,  0, selectedPoint.z - restricted.z)
+        new THREE.Vector3(selectedPoint.x + restricted.x,  0, selectedPoint.z + restricted.z)
       ];
 
       selectionLine = (
@@ -87,9 +111,7 @@ export default class FloorPlan extends React.Component {
         </group>
       </group>
     );
-
   }
-
 }
 
 function getPointId (name) {
@@ -98,8 +120,8 @@ function getPointId (name) {
 }
 
 function snapToAxis (refVec, vec) {
-  const diffX = refVec.x - vec.x;
-  const diffZ = refVec.z - vec.z;
+  const diffX = vec.x - refVec.x;
+  const diffZ = vec.z - refVec.z;
 
   return  (Math.abs(diffX) > Math.abs(diffZ)) ?
     {x: diffX, y: 0, z: 0}
@@ -131,8 +153,8 @@ function getProps ({points, lines}) {
 
 function getDispatch (dispatch) {
   return {
-    addPoint (x, y) {
-      dispatch(ACTIONS.addSinglePoint(x, y));
+    addPoint (pointId, pos) {
+      dispatch(ACTIONS.addPoint(pointId, pos));
     }
   }
 }
