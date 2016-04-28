@@ -2,7 +2,9 @@ import React from 'react';
 import {connect} from 'react-redux';
 import THREE from 'three';
 import _ from 'lodash';
+
 import {ACTIONS} from '../store';
+import Line from './line';
 
 @connect(
   getProps,
@@ -84,23 +86,24 @@ export default class FloorPlan extends React.Component {
       </mesh>
     ));
 
+    const walls = _.map(lines, ({from, to}, i) => (
+      <Line
+        key={i}
+        from={from}
+        to={to}
+        color={0xff0000}/>
+    ));
+
     if (selectedPoint && mousePosition) {
       let restricted = snapToAxis(selectedPoint, mousePosition);
 
-      let vertices = [
-        new THREE.Vector3(selectedPoint.x,  0, selectedPoint.z),
-        new THREE.Vector3(selectedPoint.x + restricted.x,  0, selectedPoint.z + restricted.z)
-      ];
 
       selectionLine = (
-        <line>
-          <geometry
-            vertices={vertices}>
-          </geometry>
-          <lineBasicMaterial
-            color={0x00ff00}/>
-        </line>
-      );
+        <Line
+          from={{x: selectedPoint.x, z: selectedPoint.z}}
+          to={{x: selectedPoint.x + restricted.x,  z: selectedPoint.z + restricted.z}}
+          color={0x00ff00}/>
+      )
     }
 
     return (
@@ -108,6 +111,9 @@ export default class FloorPlan extends React.Component {
         {selectionLine}
         <group ref={(group) => this._pointGroup = group}>
           {corners}
+        </group>
+        <group>
+          {walls}
         </group>
       </group>
     );
@@ -123,10 +129,10 @@ function snapToAxis (refVec, vec) {
   const diffX = vec.x - refVec.x;
   const diffZ = vec.z - refVec.z;
 
-  return  (Math.abs(diffX) > Math.abs(diffZ)) ?
-    {x: diffX, y: 0, z: 0}
+  return (Math.abs(diffX) > Math.abs(diffZ)) ?
+  {x: diffX, y: 0, z: 0}
     :
-    {x: 0, y: 0, z: diffZ};
+  {x: 0, y: 0, z: diffZ};
 }
 
 function getRaycaster (camera, x, y) {
