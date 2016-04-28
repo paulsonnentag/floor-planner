@@ -1,4 +1,11 @@
-import '../css/app.scss';
-import {init} from './app';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-init();
+import '../css/app.scss';
+
+import App from './components/app';
+
+ReactDOM.render(
+  <App />,
+  document.getElementById('app')
+);
