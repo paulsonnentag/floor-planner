@@ -29,6 +29,10 @@ export default class App extends React.Component {
 
   componentDidMount () {
     var controls = new (OrbitControls(THREE))(this._camera);
+    controls.minPolarAngle = 0;
+    controls.maxPolarAngle = Math.PI * 0.5;
+    controls.minDistance = 5;
+    controls.maxDistance = 150.0;
 
     window.addEventListener('resize', () => this.updateSize());
   }
@@ -41,7 +45,7 @@ export default class App extends React.Component {
         mainCamera="camera"
         width={width}
         height={height}
-        clearColor={0xaaaaaa}
+        clearColor={0x888888}
         shadowMapEnabled={true}
         shadowMapType={THREE.PCFSoftShadowMap}>
       <scene>
