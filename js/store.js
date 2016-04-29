@@ -25,6 +25,10 @@ const store = createStore((state = initalState, action) => {
       nextState = addPoint(state, action);
       break;
 
+    case 'CONNECT_POINTS':
+      nextState = connectPoints(state, action);
+      break;
+
     default:
       nextState = state;
       break;
@@ -42,9 +46,19 @@ function addPoint ({lines, points}, {pos, pointId}) {
   };
 }
 
+function connectPoints (state, {point1Id, point2Id}) {
+  return update(state, {
+    lines: {$push: [{from: point1Id, to: point2Id}]}
+  })
+}
+
 export const ACTIONS = {
   addPoint (pointId, pos) {
     return { type: 'ADD_POINT', pos, pointId: pointId}
+  },
+
+  connectPoints (point1Id, point2Id) {
+    return { type: 'CONNECT_POINTS', point1Id, point2Id};
   }
 };
 
