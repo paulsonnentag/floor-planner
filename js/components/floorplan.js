@@ -17,7 +17,8 @@ export default class FloorPlan extends React.Component {
 
     this.state = {
       selectedPointId: null,
-      mousePosition: new THREE.Vector3(0, 0, 0)
+      mousePosition: new THREE.Vector3(0, 0, 0),
+      closed: false
     };
   }
 
@@ -40,6 +41,10 @@ export default class FloorPlan extends React.Component {
 
       } else {
         this.props.connectPoints(clickedPointId, selectedPointId);
+        this.setState({
+          selectedPointId: null,
+          closed: true
+        });
       }
     }
   }
@@ -71,8 +76,8 @@ export default class FloorPlan extends React.Component {
   }
 
   render () {
-    const {points, lines, camera} = this.props;
-    const {selectedPointId, mousePosition} = this.state;
+    const {points, lines} = this.props;
+    const {selectedPointId, mousePosition, closed} = this.state;
     const selectedPoint = points[selectedPointId];
 
     let selectionLine;
@@ -96,7 +101,7 @@ export default class FloorPlan extends React.Component {
         key={i}
         from={from}
         to={to}
-        color={0x4C8BFF}/>
+        color={closed ? 0xFFD281 : 0x4C8BFF}/>
     ));
 
     if (selectedPoint && mousePosition) {
