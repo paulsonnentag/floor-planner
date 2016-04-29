@@ -49,12 +49,13 @@ export function init () {
   var ambient = new THREE.AmbientLight(0xFFFFFF, 0.25);
 
   var spotKey = new THREE.SpotLight(0xFFFFFF, 1.5);
-  spotKey.angle = 0.1;
-  spotKey.position.set(1000, 1000, 1000);
-  spotKey.shadow.mapSize.height = spotKey.shadow.mapSize.width = 2048;
+  spotKey.angle = 1;
+  spotKey.penumbra = 1;
+  spotKey.position.set(250, 250, 250);
+  spotKey.shadow.mapSize.height = spotKey.shadow.mapSize.width = 4096;
   spotKey.castShadow = true;
-  spotKey.shadow.camera.near = 0.1;
-  spotKey.shadow.camera.far = 5000;
+  spotKey.shadow.camera.far = 1000;
+  //spotKey.shadow.camera.near = 1250;
 
   spotKey.shadowCameraHelper = new THREE.CameraHelper( spotKey.shadow.camera );
   scene.add(spotKey.shadowCameraHelper);
@@ -65,8 +66,10 @@ export function init () {
 
 
   var floorplanModel = createModel(floorplan);
-  floorGrp = new THREE.Group();
 
+  _.each(floorplanModel.points, (box) => scene.add(box));
+
+  floorGrp = new THREE.Group();
   _.each(floorplanModel.points, (box) => floorGrp.add(box));
   _.each(floorplanModel.lines, (line) => floorGrp.add(line));
 
@@ -78,6 +81,7 @@ export function init () {
   var groundMesh = new THREE.Mesh(ground, groundMat);
 
   groundMesh.receiveShadow = true;
+
   groundMesh.rotateX(Math.PI / -2);
   groundMesh.position.y = -10;
 
@@ -88,7 +92,11 @@ export function init () {
   grid.position.y = -9.99;
   //scene.add(grid);
 
-
+  var testObj = new THREE.BoxGeometry(10,10,10);
+  var testMat = new THREE.MeshPhongMaterial({color: 0xFF0000});
+  var testMesh = new THREE.Mesh(testObj, testMat);
+  testMesh.castShadow = true;
+  scene.add(testMesh);
 
   document.body.appendChild(renderer.domElement);
 
@@ -173,6 +181,7 @@ function handleClick() {
     var geometry = new THREE.BoxGeometry(20, 20, 20);
     var material = new THREE.MeshPhongMaterial({color: 0x00ff00});
     var mesh = new THREE.Mesh(geometry, material);
+
     mesh.castShadow = true;
     mesh.receiveShadow = true;
 
@@ -186,7 +195,7 @@ function handleClick() {
     mesh.position.x = vec.x;
     mesh.position.y = 0;
     mesh.position.z = vec.z;
-
+    scene.add(mesh);
     floorGrp.add(mesh);
     //
 

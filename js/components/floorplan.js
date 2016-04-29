@@ -76,13 +76,14 @@ export default class FloorPlan extends React.Component {
     const corners = _.map(points, ({x, z}, id) => (
       <mesh key={id}
             position={new THREE.Vector3(x, 0, z)}
-            name={`point_${id}`}>
+            name={`point_${id}`}
+            castShadow={true}>
         <boxGeometry
-          width={20}
-          height={20}
-          depth={20}/>
-        <meshBasicMaterial
-          color={selectedPointId === id ? 0xff0000 :0x00ff00}/>
+          width={1}
+          height={1}
+          depth={1}/>
+        <meshPhongMaterial
+          color={selectedPointId === id ? 0xFFC04C :0x26457F}/>
       </mesh>
     ));
 
@@ -91,7 +92,7 @@ export default class FloorPlan extends React.Component {
         key={i}
         from={from}
         to={to}
-        color={0xff0000}/>
+        color={0x4C8BFF}/>
     ));
 
     if (selectedPoint && mousePosition) {
@@ -102,7 +103,7 @@ export default class FloorPlan extends React.Component {
         <Line
           from={{x: selectedPoint.x, z: selectedPoint.z}}
           to={{x: selectedPoint.x + restricted.x,  z: selectedPoint.z + restricted.z}}
-          color={0x00ff00}/>
+          color={0xFFD281}/>
       )
     }
 

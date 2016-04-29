@@ -12,7 +12,7 @@ export default class App extends React.Component {
   constructor (props, context) {
     super(props, context);
 
-    this.cameraPosition = new THREE.Vector3(500, 500, 500);
+    this.cameraPosition = new THREE.Vector3(50, 50, 50);
 
     this.state = {
       width: window.innerWidth,
@@ -40,7 +40,10 @@ export default class App extends React.Component {
       <React3
         mainCamera="camera"
         width={width}
-        height={height}>
+        height={height}
+        clearColor={0xaaaaaa}
+        shadowMapEnabled={true}
+        shadowMapType={THREE.PCFSoftShadowMap}>
       <scene>
         <perspectiveCamera
           ref={(camera) => {this._camera = camera}}
@@ -53,6 +56,30 @@ export default class App extends React.Component {
         <Provider store={store}>
           <FloorPlan getCamera={() => this._camera}/>
         </Provider>
+        <spotLight
+          position = {new THREE.Vector3(50, 50, 50)}
+          angle={90}
+          intensity={0.3}
+          castShadow={true}
+          shadowMapWidth={2048}
+          shadowMapHeight={2048}
+          shadowCameraFar={200}
+          />
+        <ambientLight
+          color={0xcccccc}/>
+        <mesh
+              position={new THREE.Vector3(0, -0.5, 0)}
+              scale={new THREE.Vector3(20, 20, 20)}
+              rotation={new THREE.Euler(Math.PI / -2)}
+              receiveShadow={true}>
+          <planeGeometry
+            height={10}
+            width={10}/>
+          <meshPhongMaterial
+            specular={0}
+            shininess={0}
+            color={0xaaaaaa}/>
+        </mesh>
       </scene>
     </React3>);
   }
