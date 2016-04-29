@@ -5,6 +5,7 @@ import _ from 'lodash';
 
 import {ACTIONS} from '../store';
 import Line from './line';
+import Wall from './Wall'
 
 @connect(
   getProps,
@@ -106,11 +107,18 @@ export default class FloorPlan extends React.Component {
     ));
 
     const walls = _.map(lines, ({from, to}, i) => (
-      <Line
+      
+      <Wall
         key={i}
         from={from}
         to={to}
-        color={showWalls ? 0xFFD281 : 0x4C8BFF}/>
+        color={0xffffff}/>
+      
+      /*<Line
+        key={i}
+        from={from}
+        to={to}
+        color={0x4C8BFF}/>*/
     ));
 
     if (selectedPoint && mousePosition) {
