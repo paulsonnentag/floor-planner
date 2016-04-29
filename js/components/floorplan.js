@@ -30,32 +30,36 @@ export default class FloorPlan extends React.Component {
   }
 
   handleClick (x, y) {
-    const {mousePosition, selectedPointId} = this.state;
-    const clickedPointId = this.getPointAtPosition(x, y);
+    if (!this.state.showWalls) {
+      const {mousePosition, selectedPointId} = this.state;
+      const clickedPointId = this.getPointAtPosition(x, y);
 
-    if (selectedPointId === null) {
-      this.setState({selectedPointId : clickedPointId});
-
-    } else {
-
-      if (clickedPointId === null) {
-        this.addPoint();
+      if (selectedPointId === null) {
+        this.setState({selectedPointId: clickedPointId});
 
       } else {
-        this.props.connectPoints(clickedPointId, selectedPointId);
-        this.setState({
-          selectedPointId: null,
-          closed: true
-        });
+
+        if (clickedPointId === null) {
+          this.addPoint();
+
+        } else {
+          this.props.connectPoints(clickedPointId, selectedPointId);
+          this.setState({
+            selectedPointId: null,
+            closed: true
+          });
+        }
       }
     }
   }
 
   updateMousePosition (x, y) {
-    let raycaster = getRaycaster(this.props.getCamera(), x, y);
-    var mousePosition = raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0)));
+    if (!this.state.showWalls) {
+      let raycaster = getRaycaster(this.props.getCamera(), x, y);
+      var mousePosition = raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0)));
 
-    this.setState({mousePosition});
+      this.setState({mousePosition});
+    }
   }
 
   handleKeyPress (charCode) {
@@ -107,19 +111,22 @@ export default class FloorPlan extends React.Component {
     ));
 
     const walls = _.map(lines, ({from, to}, i) => (
-      
-      <Wall
-        key={i}
-        from={from}
-        to={to}
-        color={0xffffff}/>
-      
-      /*<Line
-        key={i}
-        from={from}
-        to={to}
-        color={0x4C8BFF}/>*/
+        <Wall
+          key={i}
+          from={from}
+          to={to}
+          color={0xffffff}/>
     ));
+
+
+    const lineObjects = _.map(lines, ({from, to}, i) => (
+        <Line
+        key={i}
+        from={from}
+        to={to}
+        color={0x4C8BFF}/>
+    ));
+
 
     if (selectedPoint && mousePosition) {
       let restricted = snapToAxis(selectedPoint, mousePosition);
@@ -135,10 +142,13 @@ export default class FloorPlan extends React.Component {
     return (
       <group>
         {selectionLine}
-        <group ref={(group) => this._pointGroup = group}>
-          {corners}
+        <group ref={(group) => this._pointGroup = group} visible={!showWalls}>
+          {!showWalls? corners : []}
         </group>
-        <group>
+        <group visible={!showWalls}>
+          {lineObjects}
+        </group>
+        <group visible={showWalls}>
           {walls}
         </group>
       </group>
