@@ -18,13 +18,14 @@ export default class FloorPlan extends React.Component {
     this.state = {
       selectedPointId: null,
       mousePosition: new THREE.Vector3(0, 0, 0),
-      closed: false
+      showWalls: false
     };
   }
 
   componentDidMount () {
     document.addEventListener('click', (evt) => this.handleClick(evt.clientX, evt.clientY));
-    document.addEventListener('mousemove', (evt) => this.updateMousePosition(evt.clientX, evt.clientY))
+    document.addEventListener('mousemove', (evt) => this.updateMousePosition(evt.clientX, evt.clientY));
+    document.addEventListener('keyup', (evt)=> this.handleKeyPress(evt.keyCode));
   }
 
   handleClick (x, y) {
@@ -56,6 +57,14 @@ export default class FloorPlan extends React.Component {
     this.setState({mousePosition});
   }
 
+  handleKeyPress (charCode) {
+    if (charCode === 32) { // SPACE
+      this.setState({
+        showWalls: !this.state.showWalls
+      });
+    }
+  }
+
   getPointAtPosition (x, y) {
     let raycaster = getRaycaster(this.props.getCamera(), x, y);
     let intersects = raycaster.intersectObjects(this._pointGroup.children);
@@ -77,7 +86,7 @@ export default class FloorPlan extends React.Component {
 
   render () {
     const {points, lines} = this.props;
-    const {selectedPointId, mousePosition, closed} = this.state;
+    const {selectedPointId, mousePosition, showWalls} = this.state;
     const selectedPoint = points[selectedPointId];
 
     let selectionLine;
@@ -101,7 +110,7 @@ export default class FloorPlan extends React.Component {
         key={i}
         from={from}
         to={to}
-        color={closed ? 0xFFD281 : 0x4C8BFF}/>
+        color={showWalls ? 0xFFD281 : 0x4C8BFF}/>
     ));
 
     if (selectedPoint && mousePosition) {
