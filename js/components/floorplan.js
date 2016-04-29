@@ -28,12 +28,19 @@ export default class FloorPlan extends React.Component {
 
   handleClick (x, y) {
     const {mousePosition, selectedPointId} = this.state;
+    const clickedPointId = this.getPointAtPosition(x, y);
 
     if (selectedPointId === null) {
-      this.selectPoint(x, y);
+      this.setState({selectedPointId : clickedPointId});
 
     } else {
-      this.addPoint();
+
+      if (clickedPointId === null) {
+        this.addPoint();
+
+      } else {
+        this.props.connectPoints(clickedPointId, selectedPointId);
+      }
     }
   }
 
@@ -44,13 +51,10 @@ export default class FloorPlan extends React.Component {
     this.setState({mousePosition});
   }
 
-  selectPoint (x, y) {
+  getPointAtPosition (x, y) {
     let raycaster = getRaycaster(this.props.getCamera(), x, y);
     let intersects = raycaster.intersectObjects(this._pointGroup.children);
-
-    this.setState({
-      selectedPointId: intersects.length > 0 ? getPointId(intersects[0].object.name) : null
-    });
+    return intersects.length > 0 ? getPointId(intersects[0].object.name) : null;
   }
 
   addPoint () {
@@ -97,7 +101,6 @@ export default class FloorPlan extends React.Component {
 
     if (selectedPoint && mousePosition) {
       let restricted = snapToAxis(selectedPoint, mousePosition);
-
 
       selectionLine = (
         <Line
@@ -162,6 +165,10 @@ function getDispatch (dispatch) {
   return {
     addPoint (pointId, pos) {
       dispatch(ACTIONS.addPoint(pointId, pos));
+    },
+
+    connectPoints (point1Id, point2Id) {
+      dispatch(ACTIONS.connectPoints(point1Id, point2Id));
     }
   }
 }
